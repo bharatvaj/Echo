@@ -1,27 +1,29 @@
 #ifndef _ECHO_H
 #define _ECHO_H
+#include <condition_variable>
 #include <crosssocket.h>
 #include <echo/Chat.hpp>
 #include <echo/EchoReader.hpp>
 #include <functional>
 #include <map>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
-#include <thread>
-#include<condition_variable>
-#include <mutex>
+
+#define ECHO_DEFAULT_PORT 4500
+
 namespace echo {
 class Echo {
 
+protected:
   typedef void (*ChatCallback)(Chat *);
   typedef void (*InitCallback)(Echo &);
-  std::string server;
+  std::string userId;
   int status = 0;
 
   static xs_SOCKET sock;
 
-  static Echo *instance;
   std::mutex closeLck;
   std::condition_variable closeCv;
   bool shouldClose = false;
@@ -30,20 +32,17 @@ class Echo {
   ChatCallback sendErrorCallback;
   ChatCallback sentCallback;
 
-  xs_SOCKET getServerSocket();
+  virtual xs_SOCKET getServerSocket();
 
 public:
-  static Echo *getInstance();
   /*blocking call*/
-  void initialize(InitCallback);
+  virtual void initialize(InitCallback);
 
   /*set handles*/
   void setReadCallback(ChatCallback);
   void setStreamCallback(ChatCallback);
   void setSendErrorCallback(ChatCallback);
   void setSentCallback(ChatCallback);
-
-  void setServer(std::string);
 
   void setUser(std::string userId);
 

@@ -1,7 +1,7 @@
 #include <clog/clog.h>
 #include <csignal>
 #include <echo/Chat.hpp>
-#include <echo/Echo.hpp>
+#include <echo/EchoClient.hpp>
 #include <iostream>
 #include <unistd.h>
 
@@ -30,7 +30,8 @@ void send_error_handle(Chat *str) {
 
 void msgSent(Chat *chat) {}
 
-void inited(Echo &echo) {
+void inited(Echo &e) {
+  EchoClient &echo = (EchoClient &)e;
   clog_i(TAG, "Initialization done");
   // loading done
   // setServers
@@ -56,7 +57,7 @@ void inited(Echo &echo) {
 
 void exit_handler(int sig) { 
   clog_i(TAG, "Shutting down Echo");
-  Echo::getInstance()->close(); 
+  EchoClient::getInstance()->close(); 
   }
 
 int main(int argc, char *argv[]) {
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]) {
   // ui classes here
   // ui loading
 
-  Echo *echo = Echo::getInstance();
+  EchoClient *echo = EchoClient::getInstance();
 
   echo->setServer("localhost");
 

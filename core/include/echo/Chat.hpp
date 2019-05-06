@@ -3,8 +3,6 @@
 #include <crossguid/guid.hpp>
 #include <iostream>
 
-#include <echo/Common.hpp>
-
 namespace echo {
 typedef struct {
   std::string id;
@@ -15,6 +13,6 @@ typedef struct {
   const void *chat;
 } Chat;
 
-static Chat *createChat(void *chat, int len, bool isStream = false);
+static Chat *createChat(std::string, void *, int, bool = false);
 } // namespace echo
 #endif

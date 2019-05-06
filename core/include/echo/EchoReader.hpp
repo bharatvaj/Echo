@@ -2,12 +2,12 @@
 #define _ECHO_READER_H
 #include <comm.h>
 #include <echo/Chat.hpp>
-#include <echo/Common.hpp>
 #include <iostream>
 #include <unistd.h>
 namespace echo {
 class EchoReader {
   static EchoReader *instance;
+  std::string userId;
   int READ_SZ = 128;
   int deadLock = READ_SZ / 10;
 
@@ -23,10 +23,12 @@ class EchoReader {
     return 0;
   }
 
+  EchoReader(std::string userId) : userId(userId) {}
+
 public:
-  static EchoReader *getInstance() {
+  static EchoReader *getInstance(std::string userId) {
     if (instance == nullptr) {
-      instance = new EchoReader();
+      instance = new EchoReader(userId);
     }
     return instance;
   }
@@ -39,7 +41,7 @@ public:
       return nullptr;
     }
     Chat *chat = (Chat *)buffer;
-    if (chat->to == echo::Common::userId) {
+    if (chat->to == userId) {
       return chat;
     }
     return nullptr;

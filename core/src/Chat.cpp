@@ -1,8 +1,8 @@
 #include <echo/Chat.hpp>
 
-echo::Chat *echo::createChat(void *chat, int len, bool isStream) {
+static echo::Chat *echo::createChat(std::string userId, void *chat, int len, bool isStream) {
   // if user is not loaded, don't create chat
-  if (echo::Common::userId.empty())
+  if (userId.empty())
     return nullptr;
   Chat *c = new Chat();
   c->isStream = isStream;

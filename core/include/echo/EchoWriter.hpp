@@ -1,7 +1,6 @@
 #ifndef _ECHO_WRITER_H
 #define _ECHO_WRITER_H
 #include <echo/Chat.hpp>
-#include <echo/Common.hpp>
 #include <iostream>
 namespace echo {
 class EchoWriter {
