@@ -13,6 +13,8 @@ echo::EchoClient *echo::EchoClient::getInstance(){
     return instance;
 }
 
+void echo::EchoClient::setUser(std::string userId) { this->userId = userId; }
+
 void echo::EchoClient::setServer(std::string server) { this->server = server; }
 
 void echo::EchoClient::initialize(echo::Echo::InitCallback initCallback) {

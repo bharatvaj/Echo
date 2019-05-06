@@ -7,8 +7,6 @@ find_package(Threads)
 find_package(clog)
 find_package(comm)
 find_package(EventManager)
-find_package(crossguid)
-find_package(crosssocket)
 file(GLOB_RECURSE echo_client_HDRS "include/*.hpp")
 file(GLOB_RECURSE echo_client_SRCS "src/*.cpp" "echo_client.cpp")
 
@@ -20,8 +18,7 @@ target_compile_features(echo_client PRIVATE cxx_enum_forward_declarations)
 
 target_link_libraries(echo_client ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(echo_client ${CLOG_LIBS})
-target_link_libraries(echo_client crossguid)
-target_link_libraries(echo_client crosssocket)
+target_link_libraries(echo_client ${COMM_LIBS})
 target_link_libraries(echo_client echo)
 
 target_include_directories(echo_client PUBLIC
@@ -30,7 +27,7 @@ target_include_directories(echo_client PUBLIC
 target_include_directories(echo_client PRIVATE ${CLOG_INCLUDE_DIR})
 target_include_directories(echo_client PRIVATE ${EM_INCLUDE_DIR})
 target_include_directories(echo_client PRIVATE crosssocket)
-target_include_directories(echo_client PRIVATE crossguid)
+target_include_directories(echo_client PRIVATE ${COMM_INCLUDE_DIR})
 target_include_directories(echo_client PRIVATE echo)
 
 install(FILES echo_clientConfig.cmake DESTINATION lib/cmake/echo_client)

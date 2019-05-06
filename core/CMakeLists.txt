@@ -18,7 +18,6 @@ target_compile_features(echo PRIVATE cxx_enum_forward_declarations)
 target_link_libraries(echo ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(echo ${CLOG_LIBS})
 target_link_libraries(echo crossguid)
-target_link_libraries(echo ${COMM_LIBS})
 target_link_libraries(echo crosssocket)
 
 target_include_directories(echo PRIVATE crosssocket)
@@ -28,7 +27,6 @@ target_include_directories(echo PUBLIC
     $<INSTALL_INTERFACE:include>)
 target_include_directories(echo PRIVATE ${CLOG_INCLUDE_DIR})
 target_include_directories(echo PRIVATE ${EM_INCLUDE_DIR})
-target_include_directories(echo PRIVATE ${COMM_INCLUDE_DIR})
 target_include_directories(echo PRIVATE crossguid)
 
 install(FILES echoConfig.cmake DESTINATION lib/cmake/echo)

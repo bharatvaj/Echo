@@ -7,7 +7,7 @@
 
 using namespace echo;
 
-static const char *TAG = "echo.cpp";
+static const char *TAG = "echo_client";
 
 // read write callbacks are queued here
 // streams are given higher priority
@@ -55,10 +55,10 @@ void inited(Echo &e) {
   // echo.close();
 }
 
-void exit_handler(int sig) { 
+void exit_handler(int sig) {
   clog_i(TAG, "Shutting down Echo");
-  EchoClient::getInstance()->close(); 
-  }
+  EchoClient::getInstance()->close();
+}
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, exit_handler);

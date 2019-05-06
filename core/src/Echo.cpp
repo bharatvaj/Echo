@@ -4,8 +4,6 @@
 
 static const char *TAG = "Echo";
 
-xs_SOCKET echo::Echo::sock = SOCKET_ERROR;
-
 xs_SOCKET echo::Echo::getServerSocket()
 {
   return SOCKET_ERROR;
@@ -32,8 +30,6 @@ void echo::Echo::setSentCallback(ChatCallback callback)
 {
   this->sentCallback = callback;
 }
-
-void echo::Echo::setUser(std::string userId) { this->userId = userId; }
 
 void echo::Echo::send(std::string id, Chat *chat)
 {
@@ -64,7 +60,7 @@ std::vector<std::string> echo::Echo::getBlockedUsers()
 int echo::Echo::waitForClose()
 {
   std::unique_lock<std::mutex> lck(closeLck);
-  closeCv.wait(lck, [=] { return shouldClose; });
+  closeCv.wait(lck);
   return status;
 }
 
@@ -74,6 +70,5 @@ void echo::Echo::close()
   {
     comm_close_socket(sock);
   }
-  shouldClose = true;
   closeCv.notify_all();
 }

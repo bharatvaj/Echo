@@ -19,14 +19,12 @@ class Echo {
 protected:
   typedef void (*ChatCallback)(Chat *);
   typedef void (*InitCallback)(Echo &);
-  std::string userId;
   int status = 0;
 
-  static xs_SOCKET sock;
+  xs_SOCKET sock;
 
   std::mutex closeLck;
   std::condition_variable closeCv;
-  bool shouldClose = false;
   ChatCallback readCallback;
   ChatCallback streamCallback;
   ChatCallback sendErrorCallback;
@@ -43,8 +41,6 @@ public:
   void setStreamCallback(ChatCallback);
   void setSendErrorCallback(ChatCallback);
   void setSentCallback(ChatCallback);
-
-  void setUser(std::string userId);
 
   void send(std::string id, Chat *);
   void block(std::string id);
