@@ -5,10 +5,9 @@
 #include <vector>
 namespace echo {
 class EchoServer : public Echo {
-
+  EchoServer();
 public:
-  static EchoServer *getInstance(xs_SOCKET);
-  EchoServer(xs_SOCKET sock);
+  static EchoServer *getInstance();
 
   void initialize(InitCallback) override;
   xs_SOCKET getServerSocket() override;

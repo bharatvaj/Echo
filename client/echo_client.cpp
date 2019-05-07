@@ -15,10 +15,12 @@ static const char *TAG = "echo_client";
 // streams are given higher priority
 class EchoLooper {};
 
-void print(Chat *chat) {
-    char *str = new char(chat->chatLen + 1);
-    str[chat->chatLen] = '\0';
-    fprintf(stdout, "%s", str);
+void print(Chat *c) {
+  if(c == nullptr){
+    clog_e(TAG, "message read failed");
+    return;
+  }
+  std::cout << c->from << ": " << c->chat << std::endl;
 }
 
 // input only
@@ -31,7 +33,10 @@ void stream(Chat *chat) {
 }
 
 void send_error_handle(Chat *str) {
-  printf("Cannot send message: %s", str->chat);
+  if(str == nullptr){
+    std::cout << "Error in sending chat, try again later" << std::endl;
+    return;
+  }
 }
 
 void msgSent(Chat *chat) {}
@@ -51,7 +56,7 @@ void inited(Echo *e) {
 
   //   chat = createChat(false, "kkk", 200);              // file
   //   chat = createChat(false, "AUD_VID_STREAM", 200); // file
-  echo.send("fakerider1", chat); // send - burst fire
+  // echo.send("fakerider1", chat); // send - burst fire
 
   // blocking
   // no callback from fakerider1

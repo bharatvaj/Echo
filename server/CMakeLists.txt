@@ -20,9 +20,9 @@ target_compile_features(echo_server PRIVATE cxx_enum_forward_declarations)
 
 target_link_libraries(echo_server ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(echo_server ${CLOG_LIBS})
+target_link_libraries(echo_server crosssocket)
 target_link_libraries(echo_server ${COMM_LIBS})
 target_link_libraries(echo_server crossguid)
-target_link_libraries(echo_server crosssocket)
 target_link_libraries(echo_server echo)
 
 target_include_directories(echo_server PUBLIC
@@ -30,8 +30,8 @@ target_include_directories(echo_server PUBLIC
     $<INSTALL_INTERFACE:include>)
 target_include_directories(echo_server PRIVATE ${CLOG_INCLUDE_DIR})
 target_include_directories(echo_server PRIVATE ${EM_INCLUDE_DIR})
-target_include_directories(echo_server PRIVATE ${COMM_INCLUDE_DIR})
 target_include_directories(echo_server PRIVATE crosssocket)
+target_include_directories(echo_server PRIVATE ${COMM_INCLUDE_DIR})
 target_include_directories(echo_server PRIVATE crossguid)
 target_include_directories(echo_server PRIVATE echo)
 

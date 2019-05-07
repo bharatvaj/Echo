@@ -7,57 +7,61 @@
 
 static const char *TAG = "EchoServer";
 
-echo::EchoServer::EchoServer(xs_SOCKET sock) { this->sock = sock; }
+echo::EchoServer::EchoServer(){
+  getServerSocket();
+}
 
-echo::EchoServer *echo::EchoServer::getInstance(xs_SOCKET sock) {
-  EchoServer *echoServer = new EchoServer(sock);
+echo::EchoServer *echo::EchoServer::getInstance() {
+  EchoServer *echoServer = new EchoServer();
   return echoServer;
 }
 
 void echo::EchoServer::initialize(echo::Echo::InitCallback initCallback) {
-  // Chat *rep = createChat(userId, en, strlen(en));
-  // bool written = EchoWriter::getInstance()->write(sock, rep);
-  // if(!written){
-  //   status = -1;
-  //   clog_f(TAG, "Protocol Mismatch");
-  //   return;
-  // }
-  xs_SOCKET sock = comm_start_server(ECHO_DEFAULT_PORT);
-  if (sock == SOCKET_ERROR) {
-    clog_f(TAG, "Cannot start server");
+
+  if(sock == SOCKET_ERROR){
+    clog_f(TAG, "Server instance failed");
     initCallback(nullptr);
     return;
   }
+
   Chat *c = EchoReader::getInstance()->read(sock);
   if(c == nullptr){
-    clog_f(TAG, "Protocol Mistmatch");
+    clog_f(TAG, "Protocol mismatch");
     initCallback(nullptr);
     return;
   }
+  clog_i(TAG, "Starting server instance");
+
   echo::DB *db = echo::DB::getInstance();
   if(db->idExists(c->from)){
+    clog_i(TAG, "User exists");
     if(!db->keyChecks(c->from, c->chat, c->chatLen)){
       Chat *ec = createChat(c->to, c->from, ECHO_AUTH_ERROR, sizeof(ECHO_AUTH_ERROR));
-      if(!EchoWriter::getInstance()->write(sock, ec)){
+      clog_i(TAG, "Authentication error");
+      if(!EchoWriter::getInstance()->write(getServerSocket(), ec)){
         clog_f(TAG, "Write error");
         initCallback(nullptr);
       }
     }
   } else {
     db->saveKey(c->from, c->chat, c->chatLen);
+    clog_i(TAG, "Saving key for new user");
   }
   Chat *okc = createChat(c->to, c->from, ECHO_OK, sizeof(ECHO_OK));
-  if(!EchoWriter::getInstance()->write(sock, okc)){
+  if(!EchoWriter::getInstance()->write(getServerSocket(), okc)){
     clog_f(TAG, "Write error");
     initCallback(nullptr);
+    return;
   }
+  clog_i(TAG, "User authenticated");
 
   initCallback(this);
 
 }
 
-// returns available server
 xs_SOCKET echo::EchoServer::getServerSocket() {
-  //
+  if (sock == SOCKET_ERROR) {
+    sock = comm_start_server(ECHO_DEFAULT_PORT);
+  }
   return sock;
 }

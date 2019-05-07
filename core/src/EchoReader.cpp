@@ -28,12 +28,11 @@ echo::Chat *echo::EchoReader::read(xs_SOCKET sock)
 {
     if (sock == SOCKET_ERROR)
         return nullptr;
-    void *buffer = (void *)malloc(READ_SZ);
-    int readStatus = read(sock, (char *)buffer, READ_SZ); // chat size
-    if (readStatus == -1)
+    Chat *c = new Chat();
+    int readBytes = ::read(sock, c, sizeof(Chat));
+    if (readBytes <= 0)
     {
         return nullptr;
     }
-    Chat *chat = (Chat *)buffer;
-    return nullptr;
+    return c;
 }

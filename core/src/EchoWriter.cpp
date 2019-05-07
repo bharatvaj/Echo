@@ -1,10 +1,9 @@
 #include <echo/EchoWriter.hpp>
 #include <echo/Chat.hpp>
-#include <crosssocket.h>
 
 echo::EchoWriter *echo::EchoWriter::instance = nullptr;
 
-  int echo::EchoWriter::write(xs_SOCKET sock, char *buffer, int bufferLen, int i) {
+  int echo::EchoWriter::write(xs_SOCKET sock, char *buffer, uint32_t bufferLen, int i) {
     if (i > deadLock)
       return -1;
     int wroteBytes = ::write(sock, buffer, bufferLen);
@@ -30,6 +29,6 @@ echo::EchoWriter *echo::EchoWriter::instance = nullptr;
       return false;
     if (chat->chat == nullptr)
       return false;
-    int status = write(sock, (char *)chat, sizeof(Chat) + chat->chatLen);
-    return status == 0;
+    int status = ::write(sock, chat, sizeof(Chat));
+    return status > 0;
   }

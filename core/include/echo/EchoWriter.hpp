@@ -11,7 +11,7 @@ class EchoWriter {
   int READ_SZ = 128;
   int deadLock = READ_SZ / 10;
 
-  int write(xs_SOCKET sock, char *buffer, int bufferLen, int i = 0);
+  int write(xs_SOCKET sock, char *buffer, uint32_t bufferLen, int i = 0);
 
 
 public:

@@ -32,17 +32,11 @@ void echo::EchoClient::initialize(echo::Echo::InitCallback initCallback) {
     initCallback(nullptr);
     return;
   }
+
   // authenticate user with server
-  /*connect to server*/
-  xs_SOCKET sock = comm_connect_server(server.c_str(), ECHO_DEFAULT_PORT);
-  if (sock == SOCKET_ERROR) {
-    clog_f(TAG, "Server communication failed");
-    initCallback(nullptr);
-    return;
-  }
 
   const char *key = "hello";
-  int keyLen = 255;
+  int keyLen = 5;
 
   /*
     Generate key here
@@ -52,32 +46,39 @@ void echo::EchoClient::initialize(echo::Echo::InitCallback initCallback) {
 
   ///create and send key chat
   Chat *c = createChat(userId.c_str(), "server", key, keyLen);
-  if(!EchoWriter::getInstance()->write(sock, c)){
-    clog_f(TAG, "Cannot send key");
+  if(!EchoWriter::getInstance()->write(getServerSocket(), c)){
+    clog_f(TAG, "Cannot connect to server");
     initCallback(nullptr);
     return;
   }
 
-  Chat *c1 = EchoReader::getInstance()->read(sock);
+  clog_i(TAG, "Connected to server");
+
+  Chat *c1 = EchoReader::getInstance()->read(getServerSocket());
   if(c1 == nullptr){
     clog_f(TAG, "Communication error");
     initCallback(nullptr);
     return;
   }
-  if(strcmp((char *)c1->chat, ECHO_AUTH_ERROR) == 0){
+
+  clog_i(TAG, "Sent login ID + key");
+
+  if(strncmp((char *)c1->chat, ECHO_AUTH_ERROR, strlen(ECHO_AUTH_ERROR)) == 0){
     clog_e(TAG, "Authentication error");
     initCallback(nullptr);
     return;
-  } else if(strcmp((char *)c1->chat, ECHO_OK) != 0){
+  } else if(strncmp((char *)c1->chat, ECHO_OK, strlen(ECHO_OK)) != 0){
     clog_e(TAG, "Protocol Mismatch");
     initCallback(nullptr);
     return;
   }
 
+  clog_i(TAG, "Authentication Successful");
+
   readerThread = new std::thread([](xs_SOCKET sock, ChatCallback readCallback){
-    Chat *c = EchoReader::getInstance()->read(sock);
-    readCallback(c);
-  }, sock, readCallback);
+    Chat *c2 = EchoReader::getInstance()->read(sock);
+    readCallback(c2);
+  }, getServerSocket(), readCallback);
 
   initCallback(this);
 }

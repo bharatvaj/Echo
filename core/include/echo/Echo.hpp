@@ -1,7 +1,6 @@
 #ifndef _ECHO_H
 #define _ECHO_H
 #include <condition_variable>
-#include <crosssocket.h>
 #include <echo/Chat.hpp>
 #include <echo/EchoReader.hpp>
 #include <functional>
@@ -10,8 +9,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <crosssocket.h>
 
-#define ECHO_DEFAULT_PORT 5000
+#define ECHO_DEFAULT_PORT 8000
 
 namespace echo {
 class Echo {
@@ -21,7 +21,7 @@ protected:
   typedef void (*InitCallback)(Echo *);
   int status = 0;
 
-  xs_SOCKET sock;
+  xs_SOCKET sock = SOCKET_ERROR;
 
   std::mutex closeLck;
   std::condition_variable closeCv;
@@ -42,12 +42,12 @@ public:
   void setSendErrorCallback(ChatCallback);
   void setSentCallback(ChatCallback);
 
-  void send(std::string id, Chat *);
+  void send(Chat *);
   void block(std::string id);
   std::vector<std::string> getBlockedUsers();
   void unblock(std::string id);
-  int waitForClose();
-  void close();
+  virtual int waitForClose() final;
+  virtual void close() final;
 };
 } // namespace echo
 #endif

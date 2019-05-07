@@ -1,6 +1,9 @@
 #include <clog/clog.h>
 #include <echo/Echo.hpp>
 #include <echo/EchoWriter.hpp>
+#include <comm.h>
+#include <crosssocket.h>
+
 
 static const char *TAG = "Echo";
 
@@ -21,15 +24,18 @@ void echo::Echo::setSentCallback(ChatCallback callback)
   this->sentCallback = callback;
 }
 
-void echo::Echo::send(std::string id, Chat *chat)
+void echo::Echo::send(Chat *chat)
 {
   if (chat == nullptr)
   {
-    // if (sendErrorCallback != nullptr)
     sendErrorCallback(chat);
     return;
   }
-  EchoWriter::getInstance()->write(getServerSocket(), chat);
+  if(!EchoWriter::getInstance()->write(getServerSocket(), chat)){
+    sendErrorCallback(chat);
+    return;
+  }
+  sentCallback(chat);
 }
 
 void echo::Echo::block(std::string str)
