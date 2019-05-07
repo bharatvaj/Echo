@@ -5,7 +5,6 @@
 #include <vector>
 namespace echo {
 class EchoServer : public Echo {
-  static std::vector<EchoServer *> instances;
 
 public:
   static EchoServer *getInstance(xs_SOCKET);

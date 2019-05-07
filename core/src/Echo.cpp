@@ -4,16 +4,6 @@
 
 static const char *TAG = "Echo";
 
-xs_SOCKET echo::Echo::getServerSocket()
-{
-  return SOCKET_ERROR;
-}
-
-void echo::Echo::initialize(echo::Echo::InitCallback initCallback)
-{
-  //
-}
-
 void echo::Echo::setReadCallback(ChatCallback callback)
 {
   this->readCallback = callback;
@@ -54,6 +44,7 @@ void echo::Echo::unblock(std::string userId)
 
 std::vector<std::string> echo::Echo::getBlockedUsers()
 {
+  // TODO
   return std::vector<std::string>();
 }
 

@@ -4,6 +4,7 @@
 namespace echo {
 class EchoClient : public Echo {
   static EchoClient *instance;
+  std::thread *readerThread;
   std::string userId;
   std::string server;
 

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <clog/clog.h>
+
 using namespace echo;
 
 static const char *TAG = "echo_client";
@@ -13,13 +15,17 @@ static const char *TAG = "echo_client";
 // streams are given higher priority
 class EchoLooper {};
 
-void print(Chat *chat) { printf("char"); }
+void print(Chat *chat) {
+    char *str = new char(chat->chatLen + 1);
+    str[chat->chatLen] = '\0';
+    fprintf(stdout, "%s", str);
+}
 
 // input only
 void stream(Chat *chat) {
   /*****do all this in EchoReader*******/
-  char *str = new char(chat->chatLength + 1);
-  str[chat->chatLength] = '\0';
+  char *str = new char(chat->chatLen + 1);
+  str[chat->chatLen] = '\0';
   /************/
   fprintf(stderr, "%s", str);
 }
@@ -30,8 +36,12 @@ void send_error_handle(Chat *str) {
 
 void msgSent(Chat *chat) {}
 
-void inited(Echo &e) {
-  EchoClient &echo = (EchoClient &)e;
+void inited(Echo *e) {
+  if(e == nullptr){
+    clog_e(TAG, "Cannot initialize echo");;
+    return; //report error
+  }
+  EchoClient &echo = *(EchoClient *)e;
   clog_i(TAG, "Initialization done");
   // loading done
   // setServers

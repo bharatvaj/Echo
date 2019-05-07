@@ -11,14 +11,14 @@
 #include <thread>
 #include <vector>
 
-#define ECHO_DEFAULT_PORT 4500
+#define ECHO_DEFAULT_PORT 5000
 
 namespace echo {
 class Echo {
 
 protected:
   typedef void (*ChatCallback)(Chat *);
-  typedef void (*InitCallback)(Echo &);
+  typedef void (*InitCallback)(Echo *);
   int status = 0;
 
   xs_SOCKET sock;
@@ -30,11 +30,11 @@ protected:
   ChatCallback sendErrorCallback;
   ChatCallback sentCallback;
 
-  virtual xs_SOCKET getServerSocket();
+  virtual xs_SOCKET getServerSocket() = 0;
 
 public:
   /*blocking call*/
-  virtual void initialize(InitCallback);
+  virtual void initialize(InitCallback) = 0;
 
   /*set handles*/
   void setReadCallback(ChatCallback);

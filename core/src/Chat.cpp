@@ -1,13 +1,16 @@
 #include <echo/Chat.hpp>
+#include <cstddef>
+#include <cstring>
 
-static echo::Chat *echo::createChat(std::string userId, void *chat, int len, bool isStream) {
-  // if user is not loaded, don't create chat
-  if (userId.empty())
-    return nullptr;
+echo::Chat *echo::createChat(const char *from, const char *to, const char *chat, int chatLen, bool isStream) {
   Chat *c = new Chat();
+  memcpy((void *)c->from, from, 8);
+  memcpy((void *)c->to, to, 8);
   c->isStream = isStream;
-  c->id = xg::newGuid().str();
-  c->chatLength = len;
-  c->chat = chat;
+  //Generate 8 byte length guid
+  memcpy(c->id, xg::newGuid().str().c_str(), 8);
+  c->chatLen = chatLen;
+  c->chat = (char *)calloc(sizeof(char), chatLen);
+  memcpy(c->chat, chat, chatLen);
   return c;
 }
