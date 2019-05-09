@@ -9,7 +9,7 @@ class EchoServer : public Echo {
 public:
   static EchoServer *getInstance();
 
-  void initialize(InitCallback) override;
+  void initialize() override;
   xs_SOCKET getServerSocket() override;
 };
 } // namespace echo

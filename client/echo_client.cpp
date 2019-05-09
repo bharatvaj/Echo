@@ -70,6 +70,10 @@ void inited(Echo *e) {
   // echo.close();
 }
 
+void finished(Echo *e){
+  //
+}
+
 void exit_handler(int sig) {
   clog_i(TAG, "Shutting down Echo");
   EchoClient::getInstance()->close();
@@ -88,6 +92,9 @@ int main(int argc, char *argv[]) {
 
   echo->setUser("ghostrider001"); // automatic ssh key authorization
 
+  echo->setInitCallback(inited);
+  echo->setFinishCallback(finished);
+
   // register read and stream callback
   echo->setReadCallback(print);
   echo->setStreamCallback(stream);
@@ -95,7 +102,7 @@ int main(int argc, char *argv[]) {
   // called when cannot send a chat
   echo->setSendErrorCallback(send_error_handle);
   echo->setSentCallback(msgSent);
-  echo->initialize(inited);
+  echo->initialize();
 
   return echo->waitForClose();
 }

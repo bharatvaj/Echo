@@ -7,13 +7,14 @@
 #include <mutex>
 #include <vector>
 #include <thread>
+#include <map>
 
 static const char *TAG = "echo_server";
 
 std::mutex closeLck;
 std::condition_variable closeCv;
 
-std::vector<echo::EchoServer *> instances;
+std::map<echo::Echo *, echo::Coordinator *> instances;
 std::vector<std::thread *> instanceThreads;
 xs_SOCKET sock = SOCKET_ERROR;
 
@@ -32,7 +33,7 @@ int waitForClose() {
   closeCv.wait(lck);
 
   for (auto instance : instances) {
-    instance->close();
+    instance.first->close();
   }
   for(auto instance : instanceThreads){
     instance->join();
@@ -45,12 +46,20 @@ void initialized(echo::Echo *e) {
     clog_e(TAG, "Cannot initialize echo");
     return;
   }
-  echo::EchoServer &echo = *(echo::EchoServer *)e;
   clog_i(TAG, "Echo server instance initialized");
-
   echo::Coordinator *c = new echo::Coordinator(e);
-  //dont exit until connection closes
-  // echo.onQuit()
+  instances[e] = c;
+}
+
+void finished(echo::Echo *e){
+  if(e == nullptr) return;
+  echo::Coordinator *c = instances[e];
+  if(c != nullptr){
+    delete c; //unregisters and gets deleted
+  }
+  e->close(); //close socket
+  delete e;
+  instances.erase(e); //delete from instance map
 }
 
 int main(int argc, char *argv[]) {
@@ -66,12 +75,13 @@ int main(int argc, char *argv[]) {
     //waiting for client to connect
     //blocking
     echo::EchoServer *s = echo::EchoServer::getInstance();
+    s->setInitCallback(initialized);
+    s->setFinishCallback(finished);
     //a client has connected
     //non-blocking
-    instances.push_back(s);
     std::thread *t = new std::thread([](echo::EchoServer *s){
       if(s != nullptr){
-        s->initialize(initialized);
+        s->initialize();
       }
     }, s);
     instanceThreads.push_back(t);

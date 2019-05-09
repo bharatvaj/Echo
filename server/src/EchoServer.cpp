@@ -16,7 +16,7 @@ echo::EchoServer *echo::EchoServer::getInstance() {
   return echoServer;
 }
 
-void echo::EchoServer::initialize(echo::Echo::InitCallback initCallback) {
+void echo::EchoServer::initialize() {
 
   if(sock == SOCKET_ERROR){
     clog_f(TAG, "Server instance failed");
@@ -38,10 +38,8 @@ void echo::EchoServer::initialize(echo::Echo::InitCallback initCallback) {
     if(!db->keyChecks(c->from, c->chat, c->chatLen)){
       Chat *ec = createChat(c->to, c->from, ECHO_AUTH_ERROR, sizeof(ECHO_AUTH_ERROR));
       clog_i(TAG, "Authentication error");
-      if(!EchoWriter::getInstance()->write(getServerSocket(), ec)){
-        clog_f(TAG, "Write error");
-        initCallback(nullptr);
-      }
+      EchoWriter::getInstance()->write(getServerSocket(), ec);
+      initCallback(nullptr);
     }
   } else {
     db->saveKey(c->from, c->chat, c->chatLen);
@@ -54,6 +52,8 @@ void echo::EchoServer::initialize(echo::Echo::InitCallback initCallback) {
     return;
   }
   clog_i(TAG, "User authenticated");
+
+  userId = std::string(c->from);
 
   initCallback(this);
 

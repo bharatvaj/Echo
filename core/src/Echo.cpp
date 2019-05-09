@@ -7,6 +7,14 @@
 
 static const char *TAG = "Echo";
 
+void echo::Echo::setInitCallback(EchoCallback callback){
+  this->initCallback = callback;
+}
+
+void echo::Echo::setFinishCallback(EchoCallback callback){
+  this->finishCallback = callback;
+}
+
 void echo::Echo::setReadCallback(ChatCallback callback)
 {
   this->readCallback = callback;

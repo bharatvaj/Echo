@@ -19,7 +19,7 @@ void echo::EchoClient::setUser(std::string userId) { this->userId = userId; }
 
 void echo::EchoClient::setServer(std::string server) { this->server = server; }
 
-void echo::EchoClient::initialize(echo::Echo::InitCallback initCallback) {
+void echo::EchoClient::initialize() {
   if (userId.empty()) {
     clog_f(TAG, "Username not set");
     status = -1;
