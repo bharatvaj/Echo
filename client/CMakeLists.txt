@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(echo_client VERSION 0.0.1 LANGUAGES CXX DESCRIPTION "Chat for gamers")
+project(echo_client VERSION 0.1.0 LANGUAGES CXX DESCRIPTION "Chat for gamers")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../core ${CMAKE_CURRENT_SOURCE_DIR}/../core/build)
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(echo VERSION 0.0.1 LANGUAGES CXX DESCRIPTION "Chat for gamers")
+project(echo VERSION 0.1.0 LANGUAGES CXX DESCRIPTION "Chat for gamers")
 find_package(Threads)
 find_package(clog)
 find_package(comm)
