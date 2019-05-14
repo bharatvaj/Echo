@@ -5,6 +5,14 @@
 
 static const char *TAG = "DB";
 
+static const char *CREATE_TABLE_QUERY = "CREATE TABLE Chat ("
+"id	TEXT,"
+"s	TEXT,"
+"r	TEXT,"
+"chat	TEXT,"
+"PRIMARY KEY(\"id\")"
+")";
+
 echo::DB *echo::DB::instance = nullptr;
 sqlite3 *echo::DB::db = nullptr;
 
@@ -20,7 +28,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 echo::DB::DB(){
   clog_i(TAG, "Sqlite version: %s", sqlite3_libversion());
   //open create table chats (id text, from text, to text, chat text)
-    int rc = sqlite3_open("db.sqlite3", &db);
+    int rc = sqlite3_open("chats.db", &db);
     if (rc != SQLITE_OK) {
         clog_f(TAG, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
@@ -28,13 +36,7 @@ echo::DB::DB(){
     }
     //create table
     char *zErrMsg = 0;
-    std::string sql = "CREATE TABLE Chat (\
-    id	TEXT,\
-    s	TEXT,\
-    r	TEXT,\
-    chat	TEXT,\
-    PRIMARY KEY(\"id\")\
-    );";
+    std::string sql = CREATE_TABLE_QUERY;
     rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
     if( rc != SQLITE_OK ){
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -49,14 +51,20 @@ echo::DB::~DB(){
 void echo::DB::enqueueChat(echo::Chat *chat){
   // dbLock.lock();
   // add to chat to db
-
+  std::string sql = fmt::format("insert into Chat values(\"{}\",\"{}\",\"{}\",\"{}\")", chat->id, chat->from, chat->to, chat->chat);
+  // create table
+  char *zErrMsg = 0;
+  int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  if( rc != SQLITE_OK ){
+      fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      sqlite3_free(zErrMsg);
+   }
   // dbLock.unlock();
 }
 
 std::vector<echo::Chat *> echo::DB::getChatsFor(const char *userId){
   std::vector<Chat *> chats;
   std::string sql = fmt::format("select * from Chat where r=\"{}\"", userId);
-  char *zErrMsg = 0;
   sqlite3_stmt *stmt;
   int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, NULL);
   if (rc != SQLITE_OK) {
@@ -70,6 +78,7 @@ std::vector<echo::Chat *> echo::DB::getChatsFor(const char *userId){
     const char *c = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
 
     Chat *chat = createChat(s, r, c, strlen(c), false);
+    memcpy(chat->id, id, 7);
     chats.push_back(chat);
   }
   sqlite3_finalize(stmt);
@@ -94,8 +103,16 @@ std::vector<echo::Chat *> echo::DB::getChatsFor(const char *userId){
   return chats;
 }
 
-void echo::DB::deleteChat(Chat *chats){
+void echo::DB::deleteChat(Chat *chat){
   //delete all chats with the id
+  char *zErrMsg = 0;
+  // std::cout << "deleting chat: " << chat->id << std::endl;
+  std::string sql = fmt::format("delete from Chat where id=\"{}\"", chat->id);
+  int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  if( rc != SQLITE_OK ){
+      fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      sqlite3_free(zErrMsg);
+   }
 }
 
 echo::DB *echo::DB::getInstance(){

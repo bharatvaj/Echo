@@ -22,7 +22,7 @@ void echo::EchoServer::sendError(echo::Chat *chat){
 }
 
 void echo::EchoServer::readCallback(echo::Chat *chat){
-  clog_i(TAG, "(%s => %s) %s", chat->from, chat->to, chat->chat);
+  clog_v(TAG, "[%s](%s => %s) %s", chat->id, chat->from, chat->to, chat->chat);
   DB::getInstance()->enqueueChat(chat);
   Echo *recv = TriggerService::getInstance()->isOnline(chat->to);
   if(recv == nullptr){
