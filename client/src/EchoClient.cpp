@@ -15,8 +15,6 @@ echo::EchoClient *echo::EchoClient::getInstance(){
     return instance;
 }
 
-void echo::EchoClient::setUser(std::string userId) { this->userId = userId; }
-
 void echo::EchoClient::setServer(std::string server) { this->server = server; }
 
 void echo::EchoClient::initialize() {
@@ -75,10 +73,22 @@ void echo::EchoClient::initialize() {
 
   clog_i(TAG, "Authentication Successful");
 
-  readerThread = new std::thread([](xs_SOCKET sock, ChatCallback readCallback){
-    Chat *c2 = EchoReader::getInstance()->read(sock);
-    readCallback(c2);
-  }, getServerSocket(), readCallback);
+  readerThread = new std::thread([=](xs_SOCKET sock){
+    while(!stopRead){
+      Chat *chat = EchoReader::getInstance()->read(sock);
+      if(chat == nullptr){
+        //disconnected, call finish
+        stopRead = true;
+        finishCallback(this);
+        return;
+      }
+      if(chat->isStream){
+        fireEvent(EchoEvent::STREAM, chat);
+      } else {
+        fireEvent(EchoEvent::READ, chat);
+      }
+    }
+  }, getServerSocket());
 
   initCallback(this);
 }

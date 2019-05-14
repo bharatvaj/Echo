@@ -6,6 +6,14 @@
 namespace echo {
 class EchoServer : public Echo {
   EchoServer();
+  std::thread *readThread = nullptr;
+  bool stopRead = false;
+
+  void sent(echo::Chat *chat);
+  void sendError(echo::Chat *chat);
+  void readCallback(echo::Chat *chat);
+  void streamCallback(echo::Chat *chat);
+
 public:
   static EchoServer *getInstance();
 

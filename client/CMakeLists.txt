@@ -7,6 +7,8 @@ find_package(Threads)
 find_package(clog)
 find_package(comm)
 find_package(EventManager)
+find_package(fmt)
+#find_package(shell4cpp)
 file(GLOB_RECURSE echo_client_HDRS "include/*.hpp")
 file(GLOB_RECURSE echo_client_SRCS "src/*.cpp" "echo_client.cpp")
 
@@ -20,6 +22,7 @@ target_link_libraries(echo_client ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(echo_client ${CLOG_LIBS})
 target_link_libraries(echo_client ${COMM_LIBS})
 target_link_libraries(echo_client echo)
+target_link_libraries(echo_client fmt)
 
 target_include_directories(echo_client PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -2,19 +2,23 @@
 #include <condition_variable>
 #include <csignal>
 #include <echo/EchoServer.hpp>
-#include <echo/Coordinator.hpp>
+#include <echo/TriggerService.hpp>
 #include <iostream>
 #include <mutex>
 #include <vector>
 #include <thread>
+#include <algorithm>
 #include <map>
 
 static const char *TAG = "echo_server";
 
+echo::TriggerService *triggerService = nullptr;
+
 std::mutex closeLck;
+std::mutex instanceVectorLock;
 std::condition_variable closeCv;
 
-std::map<echo::Echo *, echo::Coordinator *> instances;
+std::vector<echo::Echo *> instances;
 std::vector<std::thread *> instanceThreads;
 xs_SOCKET sock = SOCKET_ERROR;
 
@@ -25,6 +29,9 @@ void exit_handler(int sig) {
     comm_close_socket(sock);
   }
   sock = SOCKET_ERROR;
+  if(triggerService != nullptr){
+    delete triggerService;
+  }
   closeCv.notify_all();
 }
 
@@ -33,12 +40,29 @@ int waitForClose() {
   closeCv.wait(lck);
 
   for (auto instance : instances) {
-    instance.first->close();
+      instance->close();
   }
+  instances.clear();
   for(auto instance : instanceThreads){
-    instance->join();
+      instance->join();
   }
+  instanceThreads.clear();
   return 0;
+}
+
+void addToInstance(echo::Echo *e){
+  instanceVectorLock.lock();
+  instances.push_back(e);
+  instanceVectorLock.unlock();
+}
+
+void removeFromInstance(echo::Echo *e){
+  instanceVectorLock.lock();
+  std::vector<echo::Echo *>::iterator pos = std::find(instances.begin(), instances.end(), e);
+  if (pos != instances.end()){
+    instances.erase(pos);
+  }
+  instanceVectorLock.unlock();
 }
 
 void initialized(echo::Echo *e) {
@@ -47,24 +71,24 @@ void initialized(echo::Echo *e) {
     return;
   }
   clog_i(TAG, "Echo server instance initialized");
-  echo::Coordinator *c = new echo::Coordinator(e);
-  instances[e] = c;
+  // addToInstance(e);
+  //register
+  triggerService->registerClient(e);
 }
 
 void finished(echo::Echo *e){
   if(e == nullptr) return;
-  echo::Coordinator *c = instances[e];
-  if(c != nullptr){
-    delete c; //unregisters and gets deleted
-  }
+  triggerService->unregisterClient(e);
+  removeFromInstance(e);
   e->close(); //close socket
-  delete e;
-  instances.erase(e); //delete from instance map
 }
+
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, exit_handler);
   clog_enable();
+  //probably blocking
+  triggerService = echo::TriggerService::getInstance();
     sock = comm_start_server(ECHO_DEFAULT_PORT);
     if (sock == SOCKET_ERROR) {
       clog_f(TAG, "Cannot start server");
@@ -72,20 +96,26 @@ int main(int argc, char *argv[]) {
     }
 
   while (1) {
+    if (sock == SOCKET_ERROR) {
+      clog_f(TAG, "Cannot start server");
+      break;
+    }
     //waiting for client to connect
     //blocking
     echo::EchoServer *s = echo::EchoServer::getInstance();
     s->setInitCallback(initialized);
     s->setFinishCallback(finished);
+
+    // echo::Chat *chat = echo::createChat("ghostrider001", "server", "message", 7);
     //a client has connected
     //non-blocking
+    addToInstance(s);
     std::thread *t = new std::thread([](echo::EchoServer *s){
       if(s != nullptr){
         s->initialize();
       }
     }, s);
     instanceThreads.push_back(t);
-    if(sock == SOCKET_ERROR) break;
   }
   return waitForClose();
 }

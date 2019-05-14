@@ -2,20 +2,23 @@
 #define _E_TRIGGER_SERVICE_H
 #include <map>
 #include <echo/Echo.hpp>
-#include <echo/Coordinator.hpp>
 namespace echo {
   class Coordinator;
-  class TriggerService {
-    std::map<Echo *, bool> instances;
+  enum class TriggerServiceEvent {
+    NEW_CHAT
+  };
+  class TriggerService : public em::EventManager<TriggerServiceEvent, Chat *> {
+    //echoInstances or registeredClients
+    std::vector<Echo *> instances;
     static TriggerService *instance;
-    std::vector<Coordinator> v;
     //connect to DB
     TriggerService();
 
   public:
     static TriggerService *getInstance();
-    void registerClient(echo::Coordinator *);
-    void unregisterClient(echo::Coordinator *);
+    void registerClient(echo::Echo *);
+    void unregisterClient(echo::Echo *);
+    Echo *isOnline(const char *);
   };
 }
 #endif

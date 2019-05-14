@@ -2,10 +2,40 @@
 #include <echo/EchoServer.hpp>
 #include <echo/EchoWriter.hpp>
 #include <echo/EchoReader.hpp>
+#include <echo/UserDB.hpp>
 #include <echo/DB.hpp>
 #include <echo/EchoProtocol.hpp>
+#include <echo/TriggerService.hpp>
 
 static const char *TAG = "EchoServer";
+
+void echo::EchoServer::sent(echo::Chat *chat){
+  //chat delivered, safe to delete chat
+  DB::getInstance()->deleteChat(chat);
+}
+
+void echo::EchoServer::sendError(echo::Chat *chat){
+  // don't delete from db
+  // just send again or close the connection
+  // on the event of send fail this function is called,
+  // possible recursive error
+}
+
+void echo::EchoServer::readCallback(echo::Chat *chat){
+  clog_i(TAG, "(%s => %s) %s", chat->from, chat->to, chat->chat);
+  DB::getInstance()->enqueueChat(chat);
+  Echo *recv = TriggerService::getInstance()->isOnline(chat->to);
+  if(recv == nullptr){
+    //not online
+    return;
+  }
+  recv->send(chat);
+}
+
+void echo::EchoServer::streamCallback(echo::Chat *chat){
+  //forward
+  send(chat);
+}
 
 echo::EchoServer::EchoServer(){
   getServerSocket();
@@ -32,7 +62,7 @@ void echo::EchoServer::initialize() {
   }
   clog_i(TAG, "Starting server instance");
 
-  echo::DB *db = echo::DB::getInstance();
+  echo::UserDB *db = echo::UserDB::getInstance();
   if(db->idExists(c->from)){
     clog_i(TAG, "User exists");
     if(!db->keyChecks(c->from, c->chat, c->chatLen)){
@@ -55,8 +85,34 @@ void echo::EchoServer::initialize() {
 
   userId = std::string(c->from);
 
-  initCallback(this);
+  on(EchoEvent::STREAM, this, &EchoServer::streamCallback);
+  on(EchoEvent::READ, this, &EchoServer::readCallback);
+  on(EchoEvent::SENT, this, &EchoServer::sent);
+  on(EchoEvent::SEND_ERR, this, &EchoServer::sendError);
 
+  std::vector<Chat *> chats = DB::getInstance()->getChatsFor(userId.c_str());
+  for(auto v : chats){
+    clog_i(TAG, "Sending chat: %s", v->id);
+    send(v);
+  }
+
+  readThread = new std::thread([=](xs_SOCKET sock){
+    while(!stopRead){
+      Chat *chat = EchoReader::getInstance()->read(sock);
+      if(chat == nullptr){
+        //disconnected, call finish
+        stopRead = true;
+        finishCallback(this);
+        return;
+      }
+      if(chat->isStream){
+        fireEvent(EchoEvent::STREAM, chat);
+      } else {
+        fireEvent(EchoEvent::READ, chat);
+      }
+    }
+  }, getServerSocket());
+  initCallback(this);
 }
 
 xs_SOCKET echo::EchoServer::getServerSocket() {

@@ -9,6 +9,8 @@ find_package(comm)
 find_package(EventManager)
 find_package(crossguid)
 find_package(crosssocket)
+find_package(fmt)
+include(3rdparty/FindSQLite3.cmake)
 file(GLOB_RECURSE echo_server_HDRS "include/*.hpp")
 file(GLOB_RECURSE echo_server_SRCS "src/*.cpp" "echo_server.cpp")
 
@@ -24,6 +26,8 @@ target_link_libraries(echo_server crosssocket)
 target_link_libraries(echo_server ${COMM_LIBS})
 target_link_libraries(echo_server crossguid)
 target_link_libraries(echo_server echo)
+target_link_libraries(echo_server ${SQLite3_LIBRARY})
+target_link_libraries(echo_server fmt)
 
 target_include_directories(echo_server PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -34,6 +38,8 @@ target_include_directories(echo_server PRIVATE crosssocket)
 target_include_directories(echo_server PRIVATE ${COMM_INCLUDE_DIR})
 target_include_directories(echo_server PRIVATE crossguid)
 target_include_directories(echo_server PRIVATE echo)
+target_include_directories(echo_server PRIVATE ${SQLite3_INCLUDE_DIR})
+target_include_directories(echo_server PRIVATE fmt)
 
 install(FILES echo_serverConfig.cmake DESTINATION lib/cmake/echo_server)
 install(FILES ${echo_server_HDRS} DESTINATION include/echo_server)

@@ -5,13 +5,12 @@ namespace echo {
 class EchoClient : public Echo {
   static EchoClient *instance;
   std::thread *readerThread;
-  std::string userId;
   std::string server;
+  bool stopRead = false;
 
 public:
   static EchoClient *getInstance();
 
-  void setUser(std::string userId);
   void setServer(std::string);
 
   void initialize() override;

@@ -7,6 +7,14 @@
 
 static const char *TAG = "Echo";
 
+std::string echo::Echo::getUserId() {
+  return userId;
+}
+
+void echo::Echo::setUserId(std::string userId) {
+  this->userId = userId;
+}
+
 void echo::Echo::setInitCallback(EchoCallback callback){
   this->initCallback = callback;
 }
@@ -15,35 +23,21 @@ void echo::Echo::setFinishCallback(EchoCallback callback){
   this->finishCallback = callback;
 }
 
-void echo::Echo::setReadCallback(ChatCallback callback)
-{
-  this->readCallback = callback;
-}
-void echo::Echo::setStreamCallback(ChatCallback callback)
-{
-  this->streamCallback = callback;
-}
-void echo::Echo::setSendErrorCallback(ChatCallback callback)
-{
-  this->sendErrorCallback = callback;
-}
-void echo::Echo::setSentCallback(ChatCallback callback)
-{
-  this->sentCallback = callback;
-}
-
 void echo::Echo::send(Chat *chat)
 {
   if (chat == nullptr)
   {
-    sendErrorCallback(chat);
+    //sendErrorCallback(chat);
+    fireEvent(EchoEvent::SEND_ERR, chat);
     return;
   }
   if(!EchoWriter::getInstance()->write(getServerSocket(), chat)){
-    sendErrorCallback(chat);
+    fireEvent(EchoEvent::SEND_ERR, chat);
+    // sendErrorCallback(chat);
     return;
   }
-  sentCallback(chat);
+  fireEvent(EchoEvent::SENT, chat);
+  // sentCallback(chat);
 }
 
 void echo::Echo::block(std::string str)

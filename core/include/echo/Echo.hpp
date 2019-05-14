@@ -10,14 +10,16 @@
 #include <thread>
 #include <vector>
 #include <crosssocket.h>
+#include <echo/EchoEvent.hpp>
+#include <em/EventManager.hpp>
 
 #define ECHO_DEFAULT_PORT 8000
 
 namespace echo {
-class Echo {
+
+class Echo : public em::EventManager<EchoEvent, Chat *> {
 
 protected:
-  typedef void (*ChatCallback)(Chat *);
   typedef void (*EchoCallback)(Echo *);
   std::string userId;
   int status = 0;
@@ -30,25 +32,18 @@ protected:
   EchoCallback initCallback;
   EchoCallback finishCallback;
 
-  ChatCallback readCallback;
-  ChatCallback streamCallback;
-  ChatCallback sendErrorCallback;
-  ChatCallback sentCallback;
-
   virtual xs_SOCKET getServerSocket() = 0;
 
 public:
   /*blocking call*/
   virtual void initialize() = 0;
 
-  /*set handles*/
+  std::string getUserId();
+  void setUserId(std::string);
+
+  /*set echo lifecycle handles*/
   void setInitCallback(EchoCallback);
   void setFinishCallback(EchoCallback);
-
-  void setReadCallback(ChatCallback);
-  void setStreamCallback(ChatCallback);
-  void setSendErrorCallback(ChatCallback);
-  void setSentCallback(ChatCallback);
 
   void send(Chat *);
   void block(std::string id);
