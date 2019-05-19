@@ -3,7 +3,7 @@
 #include <echo/Chat.hpp>
 #include <echo/EchoClient.hpp>
 #include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 #include <fmt/format.h>
 
 #include <clog/clog.h>
@@ -50,7 +50,7 @@ void msgSent(Chat *chat) {}
 
 void inited(Echo *e) {
   if(e == nullptr){
-    clog_e(TAG, "Cannot initialize echo");;
+    clog_e(TAG, "Cannot initialize echo");
     return; //report error
   }
   EchoClient &echo = *(EchoClient *)e;
@@ -59,7 +59,7 @@ void inited(Echo *e) {
   // setServers
   // load list of servers from file
 
-  Chat *chat;
+  //Chat *chat;
 
   //   chat = createChat(false, "kkk", 200);              // file
   //   chat = createChat(false, "AUD_VID_STREAM", 200); // file
@@ -82,8 +82,6 @@ void finished(Echo *e){
 }
 
 void start(shell4cpp::Operation op, std::vector<std::string> args){
-  c->setServer("localhost");
-
   if(args.size() == 0){
     std::cout << "Start requires userid" << std::endl;
     return;
@@ -102,6 +100,15 @@ void start(shell4cpp::Operation op, std::vector<std::string> args){
   c->on(EchoEvent::SEND_ERR, send_error_handle);
   c->on(EchoEvent::SENT, msgSent);
   c->initialize();
+}
+
+
+void server(shell4cpp::Operation op, std::vector<std::string> args){
+  if(args.size() == 0){
+    std::cout << "Enter ip address of server" << std::endl;
+    return;
+  }
+  c->setServer(args[0]);
 }
 
 void sendMessage(shell4cpp::Operation o, std::vector<std::string> args){
@@ -150,7 +157,8 @@ void exit_handler(int sig) {
 
 std::vector<shell4cpp::Operation *> getOperations(){
   std::vector<shell4cpp::Operation *> o;
-  o.push_back(new shell4cpp::Operation("start", "starts echo client", start, "start <userId> [ip][:port]"));
+  o.push_back(new shell4cpp::Operation("start", "starts echo client", start, "start <userId>"));
+  o.push_back(new shell4cpp::Operation("server", "set the server location", server, "server <ip>"));
   o.push_back(new shell4cpp::Operation("send", "sends message to a user", sendMessage, "send <to> <message>"));
   o.push_back(new shell4cpp::Operation("stop", "stops the connection", stop, "stop"));
   o.push_back(new shell4cpp::Operation("help", "prints help message", help, "help [operation]"));
