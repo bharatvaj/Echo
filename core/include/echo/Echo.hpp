@@ -33,6 +33,7 @@ protected:
   EchoCallback finishCallback;
 
   virtual xs_SOCKET getServerSocket() = 0;
+  virtual ~Echo();
 
 public:
   /*blocking call*/

@@ -4,8 +4,11 @@
 #include <comm.h>
 #include <crosssocket.h>
 
+// static const char *TAG = "Echo";
 
-static const char *TAG = "Echo";
+echo::Echo::~Echo(){
+  //
+}
 
 std::string echo::Echo::getUserId() {
   return userId;
@@ -60,6 +63,7 @@ int echo::Echo::waitForClose()
 {
   std::unique_lock<std::mutex> lck(closeLck);
   closeCv.wait(lck);
+  delete this;
   return status;
 }
 

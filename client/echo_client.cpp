@@ -1,22 +1,20 @@
-#include <clog/clog.h>
-#include <csignal>
-#include <echo/Chat.hpp>
-#include <echo/EchoClient.hpp>
 #include <iostream>
-//#include <unistd.h>
-#include <fmt/format.h>
+#include <csignal>
 
-#include <clog/clog.h>
+#include <fmt/format.h>
 #include <shell4cpp/Shell.hpp>
 
+#include <echo/Chat.hpp>
+#include <echo/EchoClient.hpp>
+
 using namespace echo;
+using namespace std;
+using namespace shell4cpp;
 
-static const char *TAG = "echo_client";
-
-echo::EchoClient *c = nullptr;
+EchoClient *c = nullptr;
 
 //
-shell4cpp::Shell shell("echo> ");
+Shell shell("echo> ");
 
 // read write callbacks are queued here
 // streams are given higher priority
@@ -24,10 +22,10 @@ class EchoLooper {};
 
 void print(Chat *c) {
   if(c == nullptr){
-    clog_e(TAG, "message read failed");
+    cout << "message read failed" << endl;
     return;
   }
-  std::cout << c->from << ": " << c->chat << std::endl;
+  cout << c->from << ": " << c->chat << endl;
 }
 
 // input only
@@ -41,7 +39,7 @@ void stream(Chat *chat) {
 
 void send_error_handle(Chat *str) {
   if(str == nullptr){
-    std::cout << "Error in sending chat, try again later" << std::endl;
+    cout << "Error in sending chat, try again later" << endl;
     return;
   }
 }
@@ -50,11 +48,11 @@ void msgSent(Chat *chat) {}
 
 void inited(Echo *e) {
   if(e == nullptr){
-    clog_e(TAG, "Cannot initialize echo");
+    cout << "Cannot initialize echo" << endl;
     return; //report error
   }
-  EchoClient &echo = *(EchoClient *)e;
-  clog_i(TAG, "Initialization done");
+  // EchoClient &echo = *(EchoClient *)e;
+  cout << "Initialization done" << endl;
   // loading done
   // setServers
   // load list of servers from file
@@ -81,9 +79,9 @@ void finished(Echo *e){
   //disconnected, now clear up
 }
 
-void start(shell4cpp::Operation op, std::vector<std::string> args){
+void start(Operation op, vector<string> args){
   if(args.size() == 0){
-    std::cout << "Start requires userid" << std::endl;
+    cout << "Start requires userid" << endl;
     return;
   }
 
@@ -103,27 +101,27 @@ void start(shell4cpp::Operation op, std::vector<std::string> args){
 }
 
 
-void server(shell4cpp::Operation op, std::vector<std::string> args){
+void server(Operation op, vector<string> args){
   if(args.size() == 0){
-    std::cout << "Enter ip address of server" << std::endl;
+    cout << "Enter ip address of server" << endl;
     return;
   }
   c->setServer(args[0]);
 }
 
-void sendMessage(shell4cpp::Operation o, std::vector<std::string> args){
+void sendMessage(Operation o, vector<string> args){
   if(args.size() < 2){
-    std::cout << "Not enough arguments" << std::endl;
+    cout << "Not enough arguments" << endl;
     return;
   }
   if(c == nullptr){
-    std::cout << "Echo not initialized, start echo first" << std::endl;
+    cout << "Echo not initialized, start echo first" << endl;
     return;
   }
-  echo::Chat *chat = echo::createChat(c->getUserId().c_str(), args[0].c_str(), args[1].c_str(), args[1].size(), false);
+  Chat *chat = createChat(c->getUserId().c_str(), args[0].c_str(), args[1].c_str(), args[1].size(), false);
   c->send(chat);
 }
-void help(shell4cpp::Operation o, std::vector<std::string> args){
+void help(Operation o, vector<string> args){
   auto ops = shell.getOperations();
   if (args.size() == 0) {
     for (auto op : ops) {
@@ -136,7 +134,7 @@ void help(shell4cpp::Operation o, std::vector<std::string> args){
   }
   for (auto msg : args) {
   if (ops.find(msg) != ops.end()) {
-    shell4cpp::Operation *op = ops[msg];
+    Operation *op = ops[msg];
     if (op == nullptr)
       continue;
     shell.println(op->usage);
@@ -144,44 +142,43 @@ void help(shell4cpp::Operation o, std::vector<std::string> args){
   }
 }
 
-void stop(shell4cpp::Operation o, std::vector<std::string> args){
+void stop(Operation o, vector<string> args){
   EchoClient::getInstance()->close();
 }
 
 void exit_handler(int sig) {
-  clog_i(TAG, "Shutting down Echo");
+  cout << "Shutting down Echo" << endl;
   EchoClient::getInstance()->close();
 }
 
 
 
-std::vector<shell4cpp::Operation *> getOperations(){
-  std::vector<shell4cpp::Operation *> o;
-  o.push_back(new shell4cpp::Operation("start", "starts echo client", start, "start <userId>"));
-  o.push_back(new shell4cpp::Operation("server", "set the server location", server, "server <ip>"));
-  o.push_back(new shell4cpp::Operation("send", "sends message to a user", sendMessage, "send <to> <message>"));
-  o.push_back(new shell4cpp::Operation("stop", "stops the connection", stop, "stop"));
-  o.push_back(new shell4cpp::Operation("help", "prints help message", help, "help [operation]"));
+vector<Operation *> getOperations(){
+  vector<Operation *> o;
+  o.push_back(new Operation("start", "starts echo client", start, "start <userId>"));
+  o.push_back(new Operation("server", "set the server location", server, "server <ip>"));
+  o.push_back(new Operation("send", "sends message to a user", sendMessage, "send <to> <message>"));
+  o.push_back(new Operation("stop", "stops the connection", stop, "stop"));
+  o.push_back(new Operation("help", "prints help message", help, "help [operation]"));
   //
   return o;
 }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, exit_handler);
-  clog_enable();
+  // clog_enable();
 
   c = EchoClient::getInstance();
 
   for(auto o : getOperations()){
     shell.addOperation(o);
   }
-  new std::thread([=]{
+  new thread([=]{
     shell.start();
     // c->close();
   });
 
   if(c == nullptr) return -1;
   int status = c->waitForClose();
-  delete c;
   return status;
 }

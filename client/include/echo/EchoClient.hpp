@@ -10,6 +10,7 @@ class EchoClient : public Echo {
 
 public:
   static EchoClient *getInstance();
+  static void deleteInstance();
 
   void setServer(std::string);
 

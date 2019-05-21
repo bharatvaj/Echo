@@ -7,7 +7,7 @@ echo::EchoWriter *echo::EchoWriter::instance = nullptr;
     if (i > deadLock)
       return -1;
     int wroteBytes = ::write(sock, buffer, bufferLen);
-    if (wroteBytes < bufferLen) {
+    if (wroteBytes < (int)bufferLen) {
       /*d - delta*/
       int d = bufferLen - wroteBytes;
       write(sock, buffer + wroteBytes, d, i++);

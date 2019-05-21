@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(echo_server VERSION 0.1.0 LANGUAGES CXX DESCRIPTION "Chat for gamers")
+project(EchoServer VERSION 0.2.0 LANGUAGES CXX DESCRIPTION "Chat for gamers")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../core ${CMAKE_CURRENT_SOURCE_DIR}/../core/build)
 
@@ -7,46 +7,27 @@ find_package(Threads)
 find_package(clog)
 find_package(comm)
 find_package(EventManager)
-find_package(crossguid)
-find_package(crosssocket)
 find_package(fmt)
-include(3rdparty/FindSQLite3.cmake)
-file(GLOB_RECURSE echo_server_HDRS "include/*.hpp")
-file(GLOB_RECURSE echo_server_SRCS "src/*.cpp" "echo_server.cpp")
+find_package(shell4cpp)
+include(cmake/FindSQLite3.cmake)
 
-add_executable(echo_server ${echo_server_HDRS} ${echo_server_SRCS})
+file(GLOB_RECURSE EchoServer_SRCS "src/*.cpp")
+add_executable(EchoServer ${EchoServer_SRCS} "echo_server.cpp")
+set_target_properties(EchoServer PROPERTIES VERSION ${PROJECT_VERSION})
+target_compile_features(EchoServer PRIVATE cxx_enum_forward_declarations)
 
-set_target_properties(echo_server PROPERTIES VERSION ${PROJECT_VERSION})
+target_link_libraries(EchoServer PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(EchoServer PRIVATE clog::clog)
+target_link_libraries(EchoServer PRIVATE crosssocket::crosssocket)
+target_link_libraries(EchoServer PRIVATE comm::comm)
+target_link_libraries(EchoServer PRIVATE fmt)
+target_link_libraries(EchoServer PRIVATE shell4cpp)
+target_link_libraries(EchoServer PUBLIC Echo)
+target_link_libraries(EchoServer PRIVATE ${SQLite3_LIBRARY})
 
-target_compile_features(echo_server PRIVATE cxx_enum_forward_declarations)
-
-target_link_libraries(echo_server ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(echo_server ${CLOG_LIBS})
-target_link_libraries(echo_server crosssocket)
-target_link_libraries(echo_server ${COMM_LIBS})
-target_link_libraries(echo_server crossguid)
-target_link_libraries(echo_server echo)
-target_link_libraries(echo_server ${SQLite3_LIBRARY})
-target_link_libraries(echo_server fmt)
-
-target_include_directories(echo_server PUBLIC
+target_include_directories(EchoServer PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-target_include_directories(echo_server PRIVATE ${CLOG_INCLUDE_DIR})
-target_include_directories(echo_server PRIVATE ${EM_INCLUDE_DIR})
-target_include_directories(echo_server PRIVATE crosssocket)
-target_include_directories(echo_server PRIVATE ${COMM_INCLUDE_DIR})
-target_include_directories(echo_server PRIVATE crossguid)
-target_include_directories(echo_server PRIVATE echo)
-target_include_directories(echo_server PRIVATE ${SQLite3_INCLUDE_DIR})
-target_include_directories(echo_server PRIVATE fmt)
 
-install(FILES echo_serverConfig.cmake DESTINATION lib/cmake/echo_server)
-install(FILES ${echo_server_HDRS} DESTINATION include/echo_server)
-install(TARGETS echo_server
-        PUBLIC_HEADER DESTINATION include/echo_server
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
-
+# tests
 add_subdirectory(test)

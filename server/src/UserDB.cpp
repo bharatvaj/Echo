@@ -8,6 +8,7 @@ static const char *TAG = "DB";
 echo::UserDB *echo::UserDB::instance = nullptr;
 sqlite3 *echo::UserDB::db = nullptr;
 
+/*
 static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
    int i;
    for(i = 0; i<argc; i++) {
@@ -16,6 +17,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
    printf("\n");
    return 0;
 }
+*/
 
 echo::UserDB::UserDB(){
   clog_i(TAG, "Sqlite version: %s", sqlite3_libversion());
@@ -27,17 +29,19 @@ echo::UserDB::UserDB(){
     //     return;
     // }
     //create table
-    char *zErrMsg = 0;
+    // char *zErrMsg = 0;
     std::string sql;
-    // std::string sql = "CREATE TABLE Chat (\
-    // id	TEXT,\
-    // s	TEXT,\
-    // r	TEXT,\
-    // chat	TEXT,\
-    // chatLen	INTEGER,\
-    // isStream	INTEGER,\
-    // PRIMARY KEY(\"id\")\
-    // );";
+    /*
+      std::string sql = "CREATE TABLE Chat (\
+        id	TEXT,\
+        s	TEXT,\
+        r	TEXT,\
+        chat	TEXT,\
+        chatLen	INTEGER,\
+        isStream	INTEGER,\
+        PRIMARY KEY(\"id\")\
+      );";
+    */
     // rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
     // if( rc != SQLITE_OK ){
     //     fprintf(stderr, "SQL error: %s\n", zErrMsg);

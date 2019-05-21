@@ -8,11 +8,16 @@ static const char *TAG = "EchoClient";
 echo::EchoClient *echo::EchoClient::instance = nullptr;
 
 echo::EchoClient *echo::EchoClient::getInstance(){
+  if (instance == nullptr) {
+    instance = new EchoClient();
+  }
+  return instance;
+}
 
-    if (instance == nullptr) {
-      instance = new EchoClient();
-    }
-    return instance;
+void echo::EchoClient::deleteInstance(){
+  if(instance != nullptr){
+    delete instance;
+  }
 }
 
 void echo::EchoClient::setServer(std::string server) { this->server = server; }
