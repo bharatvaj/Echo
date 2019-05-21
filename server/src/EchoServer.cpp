@@ -14,7 +14,7 @@ void echo::EchoServer::sent(echo::Chat *chat){
   DB::getInstance()->deleteChat(chat);
 }
 
-void echo::EchoServer::sendError(echo::Chat *chat){
+void echo::EchoServer::sendError(echo::Chat *){
   // don't delete from db
   // just send again or close the connection
   // on the event of send fail this function is called,
@@ -96,9 +96,9 @@ void echo::EchoServer::initialize() {
     send(v);
   }
 
-  readThread = new std::thread([=](xs_SOCKET sock){
+  readThread = new std::thread([=](xs_SOCKET s){
     while(!stopRead){
-      Chat *chat = EchoReader::getInstance()->read(sock);
+      Chat *chat = EchoReader::getInstance()->read(s);
       if(chat == nullptr){
         //disconnected, call finish
         stopRead = true;

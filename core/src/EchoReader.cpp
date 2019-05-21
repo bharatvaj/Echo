@@ -10,11 +10,11 @@ echo::EchoReader *echo::EchoReader::getInstance()
     }
     return instance;
 }
-int echo::EchoReader::read(int sock, char *buffer, int bufferLen, int i)
+int echo::EchoReader::read(xs_SOCKET sock, char *buffer, int bufferLen, int i)
 {
     if (i > deadLock)
         return -1;
-    int readBytes = ::read(1, buffer, bufferLen);
+    int readBytes = xs_recv(1, buffer, bufferLen, 0);
     if (readBytes < bufferLen)
     {
         /*d - delta*/
@@ -28,11 +28,12 @@ echo::Chat *echo::EchoReader::read(xs_SOCKET sock)
 {
     if (sock == SOCKET_ERROR)
         return nullptr;
-    Chat *c = new Chat();
-    int readBytes = ::read(sock, c, sizeof(Chat));
+    void *c = (char *)new Chat();
+    int readBytes = read(sock, (char *)c, sizeof(Chat), 0);
     if (readBytes <= 0)
     {
         return nullptr;
     }
-    return c;
+    Chat *chat = (Chat *)c;
+    return chat;
 }

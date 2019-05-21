@@ -16,7 +16,7 @@ static const char *CREATE_TABLE_QUERY = "CREATE TABLE Chat ("
 echo::DB *echo::DB::instance = nullptr;
 sqlite3 *echo::DB::db = nullptr;
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+static int callback(void *, int argc, char **argv, char **azColName) {
    int i;
    for(i = 0; i<argc; i++) {
       printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -77,7 +77,7 @@ std::vector<echo::Chat *> echo::DB::getChatsFor(const char *userId){
     const char *r = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
     const char *c = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
 
-    Chat *chat = createChat(s, r, c, strlen(c), false);
+    Chat *chat = createChat(s, r, c, (uint32_t)strlen(c), false);
     memcpy(chat->id, id, 7);
     chats.push_back(chat);
   }

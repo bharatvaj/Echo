@@ -1,7 +1,5 @@
 #ifndef _ECHO_CHAT_H
 #define _ECHO_CHAT_H
-#include <crossguid/guid.hpp>
-#include <cstddef>
 #include <iostream>
 /*
 | id       	| 8   	|

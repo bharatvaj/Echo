@@ -7,6 +7,10 @@ static const char *TAG = "EchoClient";
 
 echo::EchoClient *echo::EchoClient::instance = nullptr;
 
+echo::EchoClient::EchoClient(){
+    xs_init();
+}
+
 echo::EchoClient *echo::EchoClient::getInstance(){
   if (instance == nullptr) {
     instance = new EchoClient();
@@ -20,7 +24,7 @@ void echo::EchoClient::deleteInstance(){
   }
 }
 
-void echo::EchoClient::setServer(std::string server) { this->server = server; }
+void echo::EchoClient::setServer(std::string s) { this->server = s; }
 
 void echo::EchoClient::initialize() {
   if (userId.empty()) {
@@ -49,7 +53,8 @@ void echo::EchoClient::initialize() {
 
   ///create and send key chat
   Chat *c = createChat(userId.c_str(), "server", key, keyLen);
-  if(!EchoWriter::getInstance()->write(getServerSocket(), c)){
+  xs_SOCKET ss = getServerSocket();
+  if(!EchoWriter::getInstance()->write(ss, c)){
     clog_f(TAG, "Cannot connect to server");
     initCallback(nullptr);
     return;
@@ -78,9 +83,9 @@ void echo::EchoClient::initialize() {
 
   clog_i(TAG, "Authentication Successful");
 
-  readerThread = new std::thread([=](xs_SOCKET sock){
+  readerThread = new std::thread([=](xs_SOCKET s){
     while(!stopRead){
-      Chat *chat = EchoReader::getInstance()->read(sock);
+      Chat *chat = EchoReader::getInstance()->read(s);
       if(chat == nullptr){
         //disconnected, call finish
         stopRead = true;
@@ -101,8 +106,8 @@ void echo::EchoClient::initialize() {
 // returns available server
 xs_SOCKET echo::EchoClient::getServerSocket() {
   if (server.empty())
-    return SOCKET_ERROR;
-  if (sock == SOCKET_ERROR) {
+    return xs_ERROR;
+  if (sock == xs_ERROR) {
     // connect
     sock = comm_connect_server(server.c_str(), ECHO_DEFAULT_PORT);
   }

@@ -7,6 +7,8 @@
 #include <echo/Chat.hpp>
 #include <echo/EchoClient.hpp>
 
+namespace echo_client {
+
 using namespace echo;
 using namespace std;
 using namespace shell4cpp;
@@ -20,21 +22,17 @@ Shell shell("echo> ");
 // streams are given higher priority
 class EchoLooper {};
 
-void print(Chat *c) {
+void print(Chat *chat) {
   if(c == nullptr){
     cout << "message read failed" << endl;
     return;
   }
-  cout << c->from << ": " << c->chat << endl;
+  cout << chat->from << ": " << chat->chat << endl;
 }
 
 // input only
 void stream(Chat *chat) {
-  /*****do all this in EchoReader*******/
-  char *str = new char(chat->chatLen + 1);
-  str[chat->chatLen] = '\0';
-  /************/
-  fprintf(stderr, "%s", str);
+  fprintf(stderr, "%s", chat->chat);
 }
 
 void send_error_handle(Chat *str) {
@@ -44,7 +42,7 @@ void send_error_handle(Chat *str) {
   }
 }
 
-void msgSent(Chat *chat) {}
+void msgSent(Chat *) {}
 
 void inited(Echo *e) {
   if(e == nullptr){
@@ -75,7 +73,7 @@ void inited(Echo *e) {
   // echo.close();
 }
 
-void finished(Echo *e){
+void finished(Echo *){
   //disconnected, now clear up
 }
 
@@ -118,7 +116,7 @@ void sendMessage(Operation o, vector<string> args){
     cout << "Echo not initialized, start echo first" << endl;
     return;
   }
-  Chat *chat = createChat(c->getUserId().c_str(), args[0].c_str(), args[1].c_str(), args[1].size(), false);
+  Chat *chat = createChat(c->getUserId().c_str(), args[0].c_str(), args[1].c_str(), (uint32_t)args[1].size(), false);
   c->send(chat);
 }
 void help(Operation o, vector<string> args){
@@ -146,7 +144,7 @@ void stop(Operation o, vector<string> args){
   EchoClient::getInstance()->close();
 }
 
-void exit_handler(int sig) {
+void exit_handler(int) {
   cout << "Shutting down Echo" << endl;
   EchoClient::getInstance()->close();
 }
@@ -164,21 +162,24 @@ vector<Operation *> getOperations(){
   return o;
 }
 
-int main(int argc, char *argv[]) {
-  signal(SIGINT, exit_handler);
+}
+
+int main(int, char *) {
+  signal(SIGINT, echo_client::exit_handler);
   // clog_enable();
+  comm_init();
 
-  c = EchoClient::getInstance();
+  echo_client::c = echo::EchoClient::getInstance();
 
-  for(auto o : getOperations()){
-    shell.addOperation(o);
+  for(auto o : echo_client::getOperations()){
+    echo_client::shell.addOperation(o);
   }
-  new thread([=]{
-    shell.start();
+  new std::thread([=]{
+    echo_client::shell.start();
     // c->close();
   });
 
-  if(c == nullptr) return -1;
-  int status = c->waitForClose();
+  if(echo_client::c == nullptr) return -1;
+  int status = echo_client::c->waitForClose();
   return status;
 }

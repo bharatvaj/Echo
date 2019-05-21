@@ -8,6 +8,8 @@ class EchoClient : public Echo {
   std::string server;
   bool stopRead = false;
 
+  EchoClient();
+
 public:
   static EchoClient *getInstance();
   static void deleteInstance();

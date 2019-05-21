@@ -1,6 +1,6 @@
 #include <echo/Chat.hpp>
-#include <cstddef>
 #include <cstring>
+#include <crossguid/guid.hpp>
 
 echo::Chat *echo::createChat(const char *from, const char *to, const char *chat, uint32_t chatLen, bool isStream) {
   Chat *c = new Chat();

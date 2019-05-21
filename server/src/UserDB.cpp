@@ -67,13 +67,13 @@ void echo::UserDB::deleteInstance(){
   }
 }
 
-bool echo::UserDB::idExists(const char *userId) {
+bool echo::UserDB::idExists(const char *) {
   return true;
 }
-bool echo::UserDB::keyChecks(const char *userId, const char *chat, int chatLen) {
+bool echo::UserDB::keyChecks(const char *, const char *, int) {
   return true;
 }
 
-void echo::UserDB::saveKey(const char *userId, const char *chat, int chatLen) {
-
+void echo::UserDB::saveKey(const char *, const char *, int) {
+  //
 }

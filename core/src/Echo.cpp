@@ -7,15 +7,15 @@
 // static const char *TAG = "Echo";
 
 echo::Echo::~Echo(){
-  //
+  clog_enable();
 }
 
 std::string echo::Echo::getUserId() {
   return userId;
 }
 
-void echo::Echo::setUserId(std::string userId) {
-  this->userId = userId;
+void echo::Echo::setUserId(std::string uid) {
+  this->userId = uid;
 }
 
 void echo::Echo::setInitCallback(EchoCallback callback){
@@ -48,7 +48,7 @@ void echo::Echo::block(std::string str)
   // TODO
 }
 
-void echo::Echo::unblock(std::string userId)
+void echo::Echo::unblock(std::string uid)
 {
   // TODO
 }

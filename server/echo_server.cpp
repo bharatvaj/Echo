@@ -20,15 +20,15 @@ std::condition_variable closeCv;
 
 std::vector<echo::Echo *> instances;
 std::vector<std::thread *> instanceThreads;
-xs_SOCKET sock = SOCKET_ERROR;
+xs_SOCKET sock = xs_ERROR;
 
-void exit_handler(int sig) {
+void exit_handler(int) {
   clog_i(TAG, "Shutting down echo server");
   // close all server instances
-  if(sock != SOCKET_ERROR){
+  if(sock != xs_ERROR){
     comm_close_socket(sock);
   }
-  sock = SOCKET_ERROR;
+  sock = xs_ERROR;
   if(triggerService != nullptr){
     delete triggerService;
   }
@@ -84,19 +84,20 @@ void finished(echo::Echo *e){
 }
 
 
-int main(int argc, char *argv[]) {
+int main(int, char *[]) {
   signal(SIGINT, exit_handler);
   clog_enable();
+  comm_init();
   //probably blocking
   triggerService = echo::TriggerService::getInstance();
     sock = comm_start_server(ECHO_DEFAULT_PORT);
-    if (sock == SOCKET_ERROR) {
+    if (sock == xs_ERROR) {
       clog_f(TAG, "Cannot start server");
       return -1;
     }
 
   while (1) {
-    if (sock == SOCKET_ERROR) {
+    if (sock == xs_ERROR) {
       clog_f(TAG, "Cannot start server");
       break;
     }

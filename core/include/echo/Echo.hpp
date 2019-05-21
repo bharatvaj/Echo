@@ -24,7 +24,7 @@ protected:
   std::string userId;
   int status = 0;
 
-  xs_SOCKET sock = SOCKET_ERROR;
+  xs_SOCKET sock = xs_ERROR;
 
   std::mutex closeLck;
   std::condition_variable closeCv;

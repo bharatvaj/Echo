@@ -49,7 +49,6 @@ int startServer(){
     return 0;
 }
 
-
-int main(int argc, char *argv[]){
+int main(int argc, char *[]){
   return argc > 1 ? startClient() : startServer();
 }
