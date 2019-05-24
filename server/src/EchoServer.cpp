@@ -48,7 +48,7 @@ echo::EchoServer *echo::EchoServer::getInstance() {
 
 void echo::EchoServer::initialize() {
 
-  if(sock == SOCKET_ERROR){
+  if(sock == xs_ERROR){
     clog_f(TAG, "Server instance failed");
     initCallback(nullptr);
     return;
@@ -116,7 +116,7 @@ void echo::EchoServer::initialize() {
 }
 
 xs_SOCKET echo::EchoServer::getServerSocket() {
-  if (sock == SOCKET_ERROR) {
+  if (sock == xs_ERROR) {
     sock = comm_start_server(ECHO_DEFAULT_PORT);
   }
   return sock;

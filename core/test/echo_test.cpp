@@ -14,7 +14,7 @@ using namespace echo;
 int startClient(){
 
     xs_SOCKET client = comm_connect_server("localhost", PORT);
-    if(client == SOCKET_ERROR){
+    if(client == xs_ERROR){
       cout << "Cannot connect" << endl;
       return -1;
     }
@@ -33,7 +33,7 @@ int startClient(){
 
 int startServer(){
     xs_SOCKET sock = comm_start_server(PORT);
-    if(sock == SOCKET_ERROR){
+    if(sock == xs_ERROR){
       cout << "Cannot start server" << endl;
       return -1;
     }

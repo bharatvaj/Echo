@@ -26,7 +26,7 @@ int echo::EchoReader::read(xs_SOCKET sock, char *buffer, int bufferLen, int i)
 
 echo::Chat *echo::EchoReader::read(xs_SOCKET sock)
 {
-    if (sock == SOCKET_ERROR)
+    if (sock == xs_ERROR)
         return nullptr;
     void *c = (char *)new Chat();
     int readBytes = read(sock, (char *)c, sizeof(Chat), 0);

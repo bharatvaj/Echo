@@ -69,7 +69,7 @@ int echo::Echo::waitForClose()
 
 void echo::Echo::close()
 {
-  if (sock != SOCKET_ERROR)
+  if (sock != xs_ERROR)
   {
     comm_close_socket(sock);
   }

@@ -164,7 +164,7 @@ vector<Operation *> getOperations(){
 
 }
 
-int main(int, char *) {
+int main(int, char *[]) {
   signal(SIGINT, echo_client::exit_handler);
   // clog_enable();
   comm_init();

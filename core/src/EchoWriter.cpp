@@ -25,10 +25,12 @@ echo::EchoWriter *echo::EchoWriter::instance = nullptr;
   bool echo::EchoWriter::write(xs_SOCKET sock, echo::Chat *chat) {
     if (chat == nullptr)
       return false;
-    if (sock == SOCKET_ERROR)
+    if (sock == xs_ERROR)
       return false;
+    /*
     if (chat->chat == nullptr)
       return false;
+    */
     void *c = chat;
     int status = write(sock, (char *)c, sizeof(Chat));
     return status > 0;
