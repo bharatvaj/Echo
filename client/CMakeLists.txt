@@ -32,6 +32,7 @@ target_include_directories(EchoClientLib PUBLIC
 add_subdirectory(test)
 
 add_executable(EchoClient "echo_client.cpp")
+target_link_libraries(EchoClient PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(EchoClient PRIVATE EchoClientLib)
 target_link_libraries(EchoClient PRIVATE fmt::fmt)
 target_link_libraries(EchoClient PRIVATE shell4cpp)
